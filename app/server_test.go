@@ -1,19 +1,22 @@
-package app_test
+package app
 
 import (
-	"fmt"
-	"math/rand"
+	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func getRandomPort() string {
-	return fmt.Sprintf("127.0.0.1:%d", rand.Intn(20000)+10000)
+func TestShouldGetDefaultServerPort(t *testing.T) {
+	assert.Equal(t, 8001, getPort())
 }
 
-func TestRandomPort(t *testing.T) {
-	addr := getRandomPort()
+func TestShouldGetEnvironmentServerPort(t *testing.T) {
+	os.Setenv("IMPERIUM_SERVER_PORT", "8002")
+	assert.Equal(t, 8002, getPort())
+}
 
-	if addr == "" {
-		t.Error("Invalid port", addr)
-	}
+func TestShouldGetDefaultServerPortWhenInvalidPortValueIsSet(t *testing.T) {
+	os.Setenv("IMPERIUM_SERVER_PORT", "abc")
+	assert.Equal(t, 8001, getPort())
 }
