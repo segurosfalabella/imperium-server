@@ -3,22 +3,54 @@ package app
 import (
 	"log"
 	"net/http"
-	"os"
 	"strconv"
+
+	"github.com/gorilla/websocket"
 )
 
-const defaultPort = 8001
+const defaultPort = 7700
 
-// Get port server, default is 8001
-func getPort() int {
-	if port, err := strconv.Atoi(os.Getenv("IMPERIUM_SERVER_PORT")); err == nil {
-		return port
+var upgrader = websocket.Upgrader{} // use default options
+
+func managerHandler(w http.ResponseWriter, r *http.Request) {
+	c, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Print("upgrade:", err)
+		return
 	}
-	return defaultPort
+	defer c.Close()
+	for {
+		mt, message, err := c.ReadMessage()
+		if err != nil {
+			log.Println("read:", err)
+			break
+		}
+		log.Printf("recv: %s", message)
+		err = c.WriteMessage(mt, []byte("holi!! Amiguito"))
+		if err != nil {
+			log.Println("write:", err)
+			break
+		}
+	}
 }
 
+type handleler interface {
+	HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request))
+	ListenAndServe(addr string, handler http.Handler) error
+}
+
+// ConfigHandler funcition
+// var ConfigHandler = http.HandleFunc
+
 // Start Server
-func Start() {
-	log.Println("Starting Imperium Server at port", getPort())
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(getPort()), nil))
+func Start(handleler handleler) {
+	handleler.HandleFunc("/", managerHandler)
+	// http.HandleFunc("/", managerHandler)
+	// err := http.ListenAndServe(":"+strconv.Itoa(defaultPort), nil)
+	err := handleler.ListenAndServe(":"+strconv.Itoa(defaultPort), nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("Listening!!!")
 }
