@@ -2,10 +2,11 @@ package app_test
 
 import (
 	"flag"
-	"imperium-server/app"
 	"log"
 	"net/http"
 	"testing"
+
+	"github.com/segurosfalabella/imperium-server/app"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

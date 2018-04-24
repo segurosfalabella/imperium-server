@@ -1,8 +1,9 @@
 package main
 
 import (
-	"imperium-server/app"
 	"net/http"
+
+	"github.com/segurosfalabella/imperium-server/app"
 )
 
 type handler struct {
