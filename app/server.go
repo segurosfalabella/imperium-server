@@ -7,7 +7,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{} // use default options
+var upgrader = websocket.Upgrader{}
 
 // Start Server
 func Start() {
@@ -39,10 +39,6 @@ func managerHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		log.Printf("recv: %s", message)
-		// err = conn.WriteMessage(mt, []byte(message))
-		// if err != nil {
-		// 	log.Println("There was an error writing the message::", err)
-		// 	return
-		// }
+
 	}
 }
