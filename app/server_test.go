@@ -1,41 +1,25 @@
-package app_test
+package app
 
 import (
-	"flag"
-	"log"
 	"net/http"
+	"net/http/httptest"
 	"testing"
-
-	"github.com/segurosfalabella/imperium-server/app"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
-var addr = flag.String("addr", "localhost:7700", "http service address")
+func TestManageHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "localhost:7700/manager", nil)
+	if err != nil {
+		t.Fatalf("could not create the request: %v", err)
+	}
+	rec := httptest.NewRecorder()
 
-type mockHandler struct {
-	mock.Mock
-}
+	managerHandler(rec, req)
 
-func (h *mockHandler) HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request)) {
-	log.Println("************")
-	h.Called(pattern, handler)
-}
+	res := rec.Result()
+	defer res.Body.Close()
 
-func (h *mockHandler) ListenAndServe(addr string, handler http.Handler) error {
-	log.Println("************")
-	args := h.Called(addr, handler)
-	return args.Error(0)
-}
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("expected status OK; got %v", res.Status)
+	}
 
-func TestShouldListenAndServe(t *testing.T) {
-	handler := new(mockHandler)
-	handler.On("HandleFunc", "/", mock.Anything).Return()
-	handler.On("ListenAndServe", mock.Anything, nil).Return(nil)
-
-	app.Start(handler)
-
-	assert.True(t, handler.AssertCalled(t, "HandleFunc", "/", mock.Anything))
-	assert.True(t, handler.AssertCalled(t, "ListenAndServe", ":7700", nil))
 }
