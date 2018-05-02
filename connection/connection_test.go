@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/SegurosFalabella/imperium-server/connection"
+	"github.com/segurosfalabella/imperium-server/connection"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -37,37 +37,30 @@ func (u *MockUpgrader) Upgrade(w http.ResponseWriter, r *http.Request) (connecti
 	return returnArgs.Get(0).(connection.WsConn), returnArgs.Error(1)
 }
 
-func TestShouldCreateAValidConnection(t *testing.T) {
-	address := "http://127.0.0.1:7700/manager"
-	responseWriter := httptest.NewRecorder()
-	mockConn := new(MockWsConn)
-	upgrader := new(MockUpgrader)
-
-	request, _ := http.NewRequest("GET", address, nil)
-
-	upgrader.On("Upgrade", responseWriter, request).Return(mockConn, nil)
-
-	_, err := connection.Create(responseWriter, request, upgrader)
-
-	if err != nil {
-		t.Errorf("Can't create a connection: %v", err)
+func TestConnection(t *testing.T) {
+	tt := []struct {
+		name string
+		err  error
+	}{
+		{name: "Should create a valid connection", err: nil},
+		{name: "Should fail when wrong address", err: errors.New("Bad connection params")},
 	}
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			address := "http://127.0.0.1:7700/manager"
+			responseWriter := httptest.NewRecorder()
+			mockConn := new(MockWsConn)
+			upgrader := new(MockUpgrader)
 
-}
-func TestShouldFailWhenCreateAConnectionWithWrongAddress(t *testing.T) {
-	address := "http://127.0.0.1:7700/manager"
-	responseWriter := httptest.NewRecorder()
-	mockConn := new(MockWsConn)
-	upgrader := new(MockUpgrader)
+			request, _ := http.NewRequest("GET", address, nil)
 
-	request, _ := http.NewRequest("GET", address, nil)
+			upgrader.On("Upgrade", responseWriter, request).Return(mockConn, tc.err)
 
-	upgrader.On("Upgrade", responseWriter, request).Return(mockConn, errors.New("Bad connection params"))
+			_, err := connection.Create(responseWriter, request, upgrader)
 
-	_, err := connection.Create(responseWriter, request, upgrader)
-
-	if err == nil {
-		t.Errorf("Connection success with: %v", err)
+			if err != tc.err {
+				t.Errorf("Can't create a connection: %v", tc.err)
+			}
+		})
 	}
-
 }

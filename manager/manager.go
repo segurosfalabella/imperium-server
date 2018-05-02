@@ -2,6 +2,7 @@ package manager
 
 import (
 	"errors"
+	"log"
 
 	"github.com/segurosfalabella/imperium-server/dispatcher"
 
@@ -14,20 +15,30 @@ var authTokenResponse = "imperio"
 
 // Manage ...
 func Manage(conn connection.WsConn) {
-	err := auth(conn)
-	if err == nil {
-		dispatcher.Dispatch(conn, "hola")
+	if err := auth(conn); err != nil {
+		log.Fatal(err)
 	}
+	dispatcher.Dispatch(conn, "hola")
 }
 
 func auth(conn connection.WsConn) error {
-	_, message, _ := conn.ReadMessage()
-	if string(message) != authToken {
-		return errors.New("received a dark wizard")
+	_, message, err := conn.ReadMessage()
+	if err != nil {
+		return errors.New("can't read the message")
 	}
-	err := conn.WriteMessage(websocket.TextMessage, []byte(authTokenResponse))
+	if _, error := validateCredentials(message); error != nil {
+		return err
+	}
+	err = conn.WriteMessage(websocket.TextMessage, []byte(authTokenResponse))
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func validateCredentials(message []byte) (bool, error) {
+	if string(message) == authToken {
+		return true, nil
+	}
+	return false, errors.New("Invalid Credentials")
 }
