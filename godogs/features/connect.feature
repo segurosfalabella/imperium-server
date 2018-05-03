@@ -1,7 +1,7 @@
-Feature: connect to server
+Feature: connect with worker
 
-  Scenario: Connect with server
-    Given a server
-    When worker starts
-    Then should server receives "alohomora" message
-    And should server sends "imperio" message
+  Scenario: Receive connect request from worker
+    Given a worker
+    When worker try to connect to server
+    And send "alohomora" message
+    Then server should respond "imperio" message
