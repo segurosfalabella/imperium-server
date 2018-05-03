@@ -16,24 +16,21 @@ var authTokenResponse = "imperio"
 // Manage ...
 func Manage(conn connection.WsConn) {
 	if err := auth(conn); err != nil {
-		log.Fatal(err)
+		log.Println(err)
+	} else {
+		dispatcher.Dispatch(conn, "hola")
 	}
-	dispatcher.Dispatch(conn, "hola")
 }
 
 func auth(conn connection.WsConn) error {
 	_, message, err := conn.ReadMessage()
 	if err != nil {
-		return errors.New("can't read the message")
+		return err
 	}
 	if _, error := validateCredentials(message); error != nil {
-		return err
+		return error
 	}
-	err = conn.WriteMessage(websocket.TextMessage, []byte(authTokenResponse))
-	if err != nil {
-		return err
-	}
-	return nil
+	return conn.WriteMessage(websocket.TextMessage, []byte(authTokenResponse))
 }
 
 func validateCredentials(message []byte) (bool, error) {

@@ -26,53 +26,43 @@ func (conn *MockWsConn) WriteMessage(messageType int, data []byte) error {
 	return returnArgs.Error(0)
 }
 
-func TestShouldReadAMessage(t *testing.T) {
+func TestManage(t *testing.T) {
 	tt := []struct {
-		name     string
-		message  []byte
-		readErr  error
-		writeErr error
+		name       string
+		message    []byte
+		readCount  int
+		readErr    error
+		writeCount int
+		writeErr   error
 	}{
-		{name: "Should read a auth message", message: []byte("alohomora"), readErr: nil, writeErr: errors.New("Error")},
+		{
+			name:       "Should read an auth message",
+			message:    []byte("alohomora"),
+			readCount:  1,
+			writeCount: 2,
+		},
+		{
+			name:      "Should fail reading a message",
+			message:   []byte("aaaa"),
+			readCount: 1,
+			readErr:   errors.New("fdasfsaddfafd"),
+		},
+		{
+			name:      "Should fail auth",
+			message:   []byte("aaaa"),
+			readCount: 1,
+		},
 	}
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			mockWsConn := new(MockWsConn)
-			mockWsConn.On("ReadMessage").Return(0, tc.message, tc.readErr)
+			mockWsConn.On("ReadMessage").Return(1, tc.message, tc.readErr)
 			mockWsConn.On("WriteMessage").Return(tc.writeErr)
 
 			manager.Manage(mockWsConn)
-			mockWsConn.AssertNumberOfCalls(t, "ReadMessage", 1)
-			mockWsConn.AssertNumberOfCalls(t, "WriteMessage", 1)
+
+			mockWsConn.AssertNumberOfCalls(t, "ReadMessage", tc.readCount)
+			mockWsConn.AssertNumberOfCalls(t, "WriteMessage", tc.writeCount)
 		})
 	}
 }
-
-// func TestShouldFailReadingMessage(t *testing.T) {
-// 	mockWsConn := new(MockWsConn)
-// 	mockWsConn.On("ReadMessage").Return(0, []byte("aaaa"), errors.New("Error"))
-// 	manager.Manage(mockWsConn)
-// 	mockWsConn.AssertNumberOfCalls(t, "ReadMessage", 1)
-// }
-
-// func TestShouldPass(t *testing.T) {
-// 	mockWsConn := new(MockWsConn)
-// 	mockWsConn.On("ReadMessage").Return(0, []byte("alohomora"), nil)
-// 	mockWsConn.On("WriteMessage").Return(nil)
-// 	manager.Manage(mockWsConn)
-// 	mockWsConn.AssertNumberOfCalls(t, "ReadMessage", 1)
-// 	mockWsConn.AssertNumberOfCalls(t, "WriteMessage", 1)
-// }
-
-// func TestShouldExecuteWorker(t *testing.T) {
-// 	mockWsConn := new(MockWsConn)
-// 	mockWsConn.On("WriteMessage", websocket.TextMessage, mock.Anything).Return(nil)
-// 	mockWsConn.On("ReadMessage").Return(websocket.TextMessage, []byte("imperio"), nil).Once()
-// 	mockWsConn.On("WriteMessage").Return(websocket.TextMessage, []byte(`{"name":"dummy","description":"dummy description","command":"exit"}`), nil)
-
-// 	manager.Manage(mockWsConn)
-
-// 	mockWsConn.AssertNumberOfCalls(t, "ReadMessage", 1)
-// 	mockWsConn.AssertNumberOfCalls(t, "WriteMessage", 2)
-// 	mockWsConn.AssertCalled(t, "Execute")
-// }
