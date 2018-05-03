@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/DATA-DOG/godog"
+	"github.com/gorilla/websocket"
+	"github.com/segurosfalabella/imperium-server/godogs/drivers"
 	"github.com/sirupsen/logrus"
 )
 
@@ -28,7 +30,8 @@ func managerHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func aWorker() error {
-
+	workerMessage := "alohomora"
+	message, err := drivers.Worker(websocket.TextMessage, workerMessage)
 	return godog.ErrPending
 }
 
