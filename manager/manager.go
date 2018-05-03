@@ -4,10 +4,9 @@ import (
 	"errors"
 	"log"
 
-	"github.com/segurosfalabella/imperium-server/dispatcher"
-
 	"github.com/gorilla/websocket"
 	"github.com/segurosfalabella/imperium-server/connection"
+	"github.com/segurosfalabella/imperium-server/dispatcher"
 )
 
 var authToken = "alohomora"
