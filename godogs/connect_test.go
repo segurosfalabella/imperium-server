@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/DATA-DOG/godog"
@@ -12,12 +13,7 @@ import (
 var log = logrus.New()
 var Server *http.Server
 var Worker *drivers.Worker
-
-type message struct {
-	value string
-}
-
-var receiveMessages []message
+var workerMessage string
 
 const addr = "127.0.0.1:7700"
 
@@ -26,9 +22,7 @@ func startServer(server *http.Server) {
 	go http.ListenAndServe(addr, nil)
 }
 
-func managerHandler(w http.ResponseWriter, r *http.Request) {
-
-}
+func managerHandler(w http.ResponseWriter, r *http.Request) {}
 
 func aWorker() error {
 	Worker = new(drivers.Worker)
@@ -37,13 +31,20 @@ func aWorker() error {
 
 func workerTryToConnectSendingAMessage() error {
 	drivers.RunApp()
-	workerMessage := "alohomora"
+	workerMessage = "alohomora"
 	_, err := Worker.Connect(websocket.TextMessage, workerMessage)
 	return err
 }
 
-func serverShouldRespondMessage(arg1 string) error {
-	return godog.ErrPending
+func serverShouldRespondMessage(serverResponse string) error {
+	serverMessage, err := Worker.Connect(websocket.TextMessage, workerMessage)
+	if err != nil {
+		return err
+	}
+	if serverMessage != serverResponse {
+		return fmt.Errorf("expected %s message but received %s", serverResponse, serverMessage)
+	}
+	return nil
 }
 
 func FeatureContext(s *godog.Suite) {
