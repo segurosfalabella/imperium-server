@@ -17,20 +17,15 @@ var workerMessage string
 
 const addr = "127.0.0.1:7700"
 
-func startServer(server *http.Server) {
-	http.HandleFunc("/manager", managerHandler)
-	go http.ListenAndServe(addr, nil)
-}
-
 func managerHandler(w http.ResponseWriter, r *http.Request) {}
 
-func aWorker() error {
-	Worker = new(drivers.Worker)
+func aServer() error {
+	drivers.RunApp()
 	return nil
 }
 
 func workerTryToConnectSendingAMessage() error {
-	drivers.RunApp()
+	Worker = new(drivers.Worker)
 	workerMessage = "alohomora"
 	_, err := Worker.Connect(websocket.TextMessage, workerMessage)
 	return err
@@ -48,7 +43,7 @@ func serverShouldRespondMessage(serverResponse string) error {
 }
 
 func FeatureContext(s *godog.Suite) {
-	s.Step(`^a worker$`, aWorker)
+	s.Step(`^a server$`, aServer)
 	s.Step(`^worker try to connect sending "([^"]*)" message$`, workerTryToConnectSendingAMessage)
 	s.Step(`^server should respond "([^"]*)" message$`, serverShouldRespondMessage)
 }
