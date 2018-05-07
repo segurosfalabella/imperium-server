@@ -6,10 +6,9 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/segurosfalabella/imperium-server/connection"
 	"github.com/segurosfalabella/imperium-server/manager"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
-var log = logrus.New()
 var server *http.Server
 
 const addr = "127.0.0.1:7700"
@@ -36,7 +35,7 @@ func managerHandler(w http.ResponseWriter, r *http.Request) {
 
 func handler() http.Handler {
 	r := http.NewServeMux()
-	r.HandleFunc("/manager", managerHandler)
+	r.HandleFunc("/azkaban", managerHandler)
 	return r
 }
 

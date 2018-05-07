@@ -31,12 +31,12 @@ func managerHandler(w http.ResponseWriter, r *http.Request) {
 
 func handler() http.Handler {
 	r := http.NewServeMux()
-	r.HandleFunc("/manager", managerHandler)
+	r.HandleFunc("/azkaban", managerHandler)
 	return r
 }
 
 func main() {
-	log.Println("I'm listening on url ws://localhost:7700/manager")
+	log.Println("I'm listening on url ws://localhost:7700")
 	err := http.ListenAndServe(":7700", handler())
 	if err != nil {
 		log.Fatal(err)
