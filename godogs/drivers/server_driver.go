@@ -14,11 +14,12 @@ var server *http.Server
 
 const addr = "127.0.0.1:7700"
 
+// WsUpgrader structure
 type WsUpgrader struct {
 	websocket.Upgrader
 }
 
-// Upgrade ...
+// Upgrade method
 func (u *WsUpgrader) Upgrade(w http.ResponseWriter, r *http.Request) (connection.WsConn, error) {
 	return u.Upgrader.Upgrade(w, r, nil)
 }

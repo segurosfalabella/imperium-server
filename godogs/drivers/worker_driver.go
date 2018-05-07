@@ -6,9 +6,11 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// Worker structure
 type Worker struct {
 }
 
+// Connect method
 func (w *Worker) Connect(messageType int, message string) (string, error) {
 	wu := url.URL{Scheme: "ws", Host: addr, Path: "/manager"}
 	wsconn, _, err := websocket.DefaultDialer.Dial(wu.String(), nil)

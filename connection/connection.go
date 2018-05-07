@@ -11,7 +11,7 @@ type WsConn interface {
 	WriteMessage(messageType int, data []byte) error
 }
 
-// Upgrader...
+// Upgrader interface
 type Upgrader interface {
 	Upgrade(w http.ResponseWriter, r *http.Request) (WsConn, error)
 }
