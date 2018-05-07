@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/DATA-DOG/godog"
 	"github.com/gorilla/websocket"
@@ -21,6 +22,7 @@ func managerHandler(w http.ResponseWriter, r *http.Request) {}
 
 func aServer() error {
 	drivers.RunApp()
+	time.Sleep(100 * time.Millisecond)
 	return nil
 }
 
